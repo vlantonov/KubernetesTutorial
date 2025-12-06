@@ -1,9 +1,17 @@
 # Kubernetes Tutorial
 
 ## Contents
+
 ### What is Kubernetes
-*  What problems does Kubernetes solve?
-*  What features do container orchestration tools offer?
+
+####  What problems does Kubernetes solve?
+* Monolith to microservices
+* Increased usage of containers
+
+####  What features do container orchestration tools offer?
+* High availability or no downtime
+* Scalability or high performance
+* Disaster recovery - backup and restore
 
 ### Main K8s Components
 *  Node & Pod

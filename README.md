@@ -19,7 +19,7 @@
 * [Kubernetes Tutorial for Beginners](https://www.youtube.com/watch?v=X48VuDVv0do)
 * [Learn Kubernetes Basics](https://kubernetes.io/docs/tutorials/kubernetes-basics/)
 * [How to Learn Kubernetes - Complete Roadmap & Resources](https://devopscube.com/learn-kubernetes-complete-roadmap)
-* [geeksforgeeks - Kubernetes Tutorial](https://www.geeksforgeeks.org/kubernetes-tutorial/)
+* [geeksforgeeks - Kubernetes Tutorial](https://www.geeksforgeeks.org/devops/kubernetes-tutorial/)
 * [Helm](https://helm.sh/docs/)
 * [Play with Kubernetes](https://labs.play-with-k8s.com/)
 * [Configure Liveness, Readiness and Startup Probes](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/)

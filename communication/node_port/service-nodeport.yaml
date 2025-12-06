@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello-nodeport-service
+spec:
+  type: NodePort
+  selector:
+    app: hello # Нацелен на те же поды, что и предыдущий сервис
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+      # nodePort: 30007 - можно указать вручную, иначе Kubernetes выберет случайный в диапазоне 30000-32768

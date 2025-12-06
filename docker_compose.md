@@ -19,8 +19,8 @@ docker run -d \
 -e MONGO_INITDB_ROOT_USERNAME=admin \
 -e MONGO_INITDB_ROOT_PASSWORD=supersecret \
 --network mongo-network \
---name mongodb
-mongo
+--name mongodb \
+mongo:8.2.2
 ```
 
 ### Run Docker project (Mongo Express)
@@ -31,8 +31,8 @@ docker run -d \
 -e ME_CONFIG_MONGODB_ADMINPASSWORD=supersecret \
 -e ME_CONFIG_MONGODB_SERVER=mongodb \
 --network mongo-network \
---name mongo-express
-mongo-express
+--name mongo-express \
+mongo-express:1.0.2-18-alpine3.18
 ```
 
 ### List Docker processes
@@ -57,7 +57,7 @@ docker network rm mongo-network
 
 ## Compose File
 
-Above containers will be defined in a single YAML file - `compose.yaml`
+Above containers will be defined in a single YAML file - `mongo-services.yaml`
 
 ### Header
 Version of docker-compose
@@ -71,7 +71,7 @@ ports - host:container
 ```bash
 services:
    mongodb:
-      image: mongo
+      image: mongo:8.2.2
       ports:
         - 27017:27017
       environment:
@@ -160,6 +160,10 @@ secrets:
       file: ./my_secret.txt
 ```
 
+## Total cleanup
+```
+docker system prune -a
+```
 
 ## Reference
 * [Ultimate Docker Compose Tutorial](https://www.youtube.com/watch?v=SXwC9fSwct8)

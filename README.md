@@ -14,11 +14,48 @@
 * Disaster recovery - backup and restore
 
 ### Main K8s Components
-*  Node & Pod
-*  Service & Ingress
-*  ConfigMap & Secret
-*  Volumes
-*  Deployment & StatefulSet
+
+####  Node & Pod
+* Node: smallest unit of k8s
+* Node: abstraction over container
+* Interaction only with k8s layer
+* Usually one application per pod
+* Each pod gets own IP address
+* New IP address on recreation
+
+#### Service & Ingress
+* Service: permanent IP address
+* Lifecycle of Pod and Service NOT connected
+* App should be accessible through browser
+* Ingress: Expose outside
+
+####  ConfigMap & Secret
+* Database URL usually in the build application!
+* ConfigMap: external configuration of your application
+* Don't put credential into ConfigMap!
+* Secret: use to store secret data
+* Secret: base64 encoded
+* The build-in security mechanism is not enabled by default!
+* Use it as environment variables or as a properties file
+
+#### Volumes
+* Data storage persisted
+* Attach storage to pod
+* Storage on local machine
+* Or remote, outside od the k8s cluster
+* k8s doesn't manage data persistence!
+
+#### Deployment & StatefulSet
+* The replica is connected to the same service
+* Service has two functionalities: permanent IP and load balancer
+* Deployment: define blueprints for pods and number of replicas
+* Deployment: abstraction of pods; can be created
+* Deployment: stateLESS Apps
+* DB can't be replicated via Deployment! Has state
+* StatefulSet: Avoid data inconsistencies
+* StatefulSet: for STATEFUL apps or Databases
+* Deploying StatefulSet is not easy!
+* DB are ofter hosted outside k8s cluster
 
 ### K8s Architecture
 *  Worker Nodes

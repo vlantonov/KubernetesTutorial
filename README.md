@@ -16,12 +16,18 @@
 ### Main K8s Components
 
 ####  Node & Pod
-* Node: smallest unit of k8s
-* Node: abstraction over container
+* Pod: smallest unit of k8s
+* Pod: abstraction over container
 * Interaction only with k8s layer
 * Usually one application per pod
-* Each pod gets own IP address
+* Node: machine (physical or virtual) in a Kubernetes cluster that runs your applications.
+* Node" contains the tools needed to run Pods, including the container runtime (like Docker), the Kubelet (agent), and the Kube proxy (networking).
+* Each node gets own IP address
 * New IP address on recreation
+* Master node (Control Plane):  makes decisions, like where to run applications, handles scheduling, and keeps track of everything.
+* Worker nodes: machines that actually run your apps inside containers.
+* Worker nodes: has a Kubelet (agent), a container runtime (like Docker or containerd), and tools for networking and monitoring.
+* Cluster: group of computers (called nodes) that work together to run your containerized applications.
 
 #### Service & Ingress
 * Service: permanent IP address
@@ -46,8 +52,10 @@
 * k8s doesn't manage data persistence!
 
 #### Deployment & StatefulSet
+* Service: way to connect applications running inside your cluster. It gives your Pods a stable way to communicate, even if the Pods themselves keep changing.
 * The replica is connected to the same service
 * Service has two functionalities: permanent IP and load balancer
+* Deployment: Kubernetes object used to manage a set of Pods running your containerized applications. It provides declarative updates, meaning you tell Kubernetes what you want, and it figures out how to get there.
 * Deployment: define blueprints for pods and number of replicas
 * Deployment: abstraction of pods; can be created
 * Deployment: stateLESS Apps
@@ -108,6 +116,7 @@
 
 ### K8s Ingress explained
 *  What is Ingress? External Service vs. Ingress
+* Ingress: way to manage external access to your services in a Kubernetes cluster. It provides HTTP and HTTPS routing to your services, acting as a reverse proxy.
 *  Example YAML Config Files for External Service and Ingress
 *  Internal Service Configuration for Ingress
 *  How to configure Ingress in your cluster?

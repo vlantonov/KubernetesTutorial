@@ -66,17 +66,46 @@
 * DB are ofter hosted outside k8s cluster
 
 ### K8s Architecture
-*  Worker Nodes
-*  Master Nodes
-*  Api Server
-*  Scheduler
-*  Controller Manager
-*  etcd - the cluster brain
+
+####  Worker Nodes
+* Each node has multiple posd on it
+* Three processes must be installed on every node
+* Worker Nodes do the actual work
+* First process: Container runtime (can be Docker)
+* Second process: Kubelet - interacts both with container and node
+* Kubelets starts the process with a container inside
+* Communication between Nodes is done via Services
+* Third process: Kube proxy - forward the requests, must be installed on every node
+
+####  Master Nodes
+* Managing processes:
+   * Schedule pod
+   * Monitor
+   * Re-schedule/re-start pod
+   * Join a new Node
+* Four processes on every master Node: API Server, Scheduler, Controller Manager, etcd 
+
+####  Api Server
+* Cluster gateway
+* Gatekeeper for authentification
+
+####  Scheduler
+* Decides on which node to put the pod
+* Kubelet puts pod
+
+####  Controller Manager
+* Detects cluster state changes
+* Decides rescheduling
+
+####  etcd - the cluster brain
+* key/value store where cluster changes are stored
+* Cluster brain; informs scheduler
+* Application data NOT stored
 
 ### Minikube and kubectl - Local Setup
-*  What is minikube?
-*  What is kubectl?
-*   install minikube and kubectl
+* What is minikube?
+* What is kubectl?
+* Install minikube and kubectl
 * [Commands](https://gitlab.com/nanuchi/youtube-tutorial-series/-/blob/master/basic-kubectl-commands/cli-commands.md)
 
 ### Main Kubectl Commands - K8s CLI

@@ -103,10 +103,39 @@
 * Application data NOT stored
 
 ### Minikube and kubectl - Local Setup
-* What is minikube?
-* What is kubectl?
-* Install minikube and kubectl
+
+#### What is minikube?
+* [minikube](https://minikube.sigs.k8s.io/docs/)
+* To test on local machine
+* One node cluster
+* Master and worker processes run on one machine
+* Requires Docker preinstalled
+* Creates Virtual box on your machine
+* Node runs in that virtual box
+
+#### What is kubectl?
+* [kubectl - command line tool](https://kubernetes.io/docs/reference/kubectl/)
+* API server is the entry point used
+* Creates pods, enables pods, run pods, destroys pods ...
+* It is applicable to all K8s clusters
+
+#### Install minikube and kubectl
+* [Install minikube](https://minikube.sigs.k8s.io/docs/start/?arch=%2Flinux%2Fx86-64%2Fstable%2Fbinary+download)
+* [Install kubectl](https://kubernetes.io/docs/tasks/tools/)
+* Needs virtualization on machine - install Hypervisor
 * [Commands](https://gitlab.com/nanuchi/youtube-tutorial-series/-/blob/master/basic-kubectl-commands/cli-commands.md)
+* Create and start the cluster
+```
+minikube start
+```
+* Check nodes
+```
+kubectl get nodes
+```
+* Check status
+```
+minikube status
+```
 
 ### Main Kubectl Commands - K8s CLI
 *  Get status of different components
@@ -125,6 +154,11 @@
 *  [demo](https://gitlab.com/nanuchi/youtube-tutorial-series/-/tree/master/kubernetes-configuration-file-explained)
 
 ### Demo Project
+* Install two master nodes and three worker nodes
+* Get new bare server
+* Install all the master/worker nodes
+* Add it to the cluster
+
 *  Deploying MongoDB and Mongo Express
 *  MongoDB Pod
 *  Secret

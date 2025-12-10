@@ -160,6 +160,7 @@ minikube status
 * Create deployment `kubectl create deployment [name]`
 * Create deployment `kubectl create deployment NAME --image=image [--dry-run] [options]`
 * Example `kubectl create deployment nginx-depl --image=nginx:1.29.3`
+* Another example `kubectl create deployment mongo-depl --image=mongo:8.2.2`
 * Check `kubectl get deployment` , `kubectl get pod`
 
 #### Change the pod/deployment
@@ -173,11 +174,18 @@ minikube status
 * Log to console `kubectl logs [pod_name]`
 * Get interactive terminal `kubectl exec -it [pod_name] -- bin/bash`
 * Get `pod_name` from `kubectl get pod`
+* Information `kubectl describe pod [pod_name]` - check state changes
 
 #### Delete pod/deployment
 * Delete deployment `kubectl delete deployment [name]`
+* Clears all the undelying pods, replica sets, ...
+* Check: `kubectl get deployment`, `kubectl get pod`, `kubectl get replicaset`
 
 #### CRUD by applying configuration file
+* Command `kubectl apply -f [file_name]`
+* Basic file `nginx-deployment.yaml`
+* Example `kubectl apply -f nginx-deployment.yaml`
+* Creates and configures deployment
 
 ### K8s YAML Configuration File
 *  3 parts of a Kubernetes config file (metadata, specification, status)

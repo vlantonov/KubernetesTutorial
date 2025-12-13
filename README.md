@@ -268,17 +268,116 @@ kubectl delete -f nginx-service.yaml
 ```
 
 ### Demo Project
-* Install two master nodes and three worker nodes
-* Get new bare server
-* Install all the master/worker nodes
-* Add it to the cluster
 
-*  Deploying MongoDB and Mongo Express
-*  MongoDB Pod
-*  Secret
-*  MongoDB Internal Service
-*  Deployment Service and Config Map
-*  Mongo Express External Service
+#### Setup
+* Two Deployments / Pods
+* Two Services
+* A ConfigMap
+* A Secret
+* minikube running
+```
+kubectl get all
+```
+* Files in `k8s-configuration`
+* Deployment Config File is checked into repository
+* Username and password should not go there!
+* Secret lives in K8s, not in the repository!
+
+#### Secret
+* Must be created before the Deployment!
+* `kind` : Secret
+* `metadata` \ `name` : a random name
+* `type`: Opaque - default for arbitrary key-value pairs
+* `data`: Actual contents - key-value pairs
+* Values in pairs are not plain text, but base64 encoded. Not secure
+* Generate base64 on terminal
+```
+echo -n 'username' | base64
+```
+* There are built-in mechanism (like encryption) for basic security, not enabled by default
+* Apply the secret
+```
+kubectl apply -f mongo-secret.yaml
+kubectl get secret
+```
+* Secrets now can be referenced in Deployment
+
+####  MongoDB Pod
+* MongoDB deployment
+```
+kubectl apply -f mongo.yaml
+kubectl get all
+```
+* Watch progress
+```
+kubectl get pod --watch
+```
+* More information
+```
+kubectl describe pod [pod_name]
+```
+
+#### MongoDB Internal Service
+* Need for other components to talk to pod
+* Multiple documents can be done in one file
+* Document separation: `---`
+* Deployment and service in one file because they belong together!
+* Service configuration file
+   * `kind` : Service
+   * `metadata` \ `name` : a random name
+   * `selector` : to connect to Pod through label
+   * `ports`: see next
+   * `port` : Service port
+   * `targetPort` : containerPort of Deployment
+* Apply configuration
+```
+kubectl apply -f mongo.yaml
+kubectl get service
+kubectl describe service mongodb-service
+kubectl get pod -o wide
+```
+
+#### Config Map
+* External configuration
+* Centralized
+* Other components can use it
+* `kind` ConfigMap
+* `metadata` \ `name` : a random name
+* `data`: Actual contents - key-value pairs
+* Apply
+```
+kubectl apply -f mongo-configmap.yaml
+```
+* configMap now can be referenced in Deployment
+
+#### Deploying Mongo Express
+* ConfigMap must already be in the cluster when referencing it!
+* Needs ConfigMap for MongoDB server name
+* Needs MongoDB Address / Internal Service
+* Needs credentials to authentificate
+* Apply
+```
+kubectl apply -f mongo-express.yaml
+```
+
+#### Mongo Express External Service
+* Access Mongo Express from a browser
+* Create in the same file as Mongo Express deployment
+* Configuration is similar to internal service
+* To expose externally add to config `type` : LoadBalancer
+* Internal service is `ClusterIP` by default
+* Internal service also acts as a load balancer!
+* Here LoadBalancer assigns service external IP address and so accepts external requests
+* `nodePort` - port where external IP address will be open. Must be between 30000 and 32767
+* Apply updated configuration
+```
+kubectl apply -f mongo-express.yaml
+```
+* Provide external IP address
+```
+minikube service mongo-express-service
+```
+* Default - username `admin`, password `pass`
 * [Project](https://gitlab.com/nanuchi/youtube-tutorial-series/-/tree/master/demo-kubernetes-components)
 
 ### Organizing your components with K8s Namespaces

@@ -188,11 +188,84 @@ minikube status
 * Creates and configures deployment
 
 ### K8s YAML Configuration File
-*  3 parts of a Kubernetes config file (metadata, specification, status)
-*  format of configuration file
-*  blueprint for pods (template)
-*  connecting services to deployments and pods (label & selector & port)
-*  [demo](https://gitlab.com/nanuchi/youtube-tutorial-series/-/tree/master/kubernetes-configuration-file-explained)
+####  3 parts of a Kubernetes config file (metadata, specification, status)
+* First part: metadata
+* Second part: specification - specific attributes to the kind!
+
+`nginx-deployment.yaml`
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels: ...
+spec:
+  replicas: 2
+  selector:
+  template:
+```
+`nginx-service.yaml`
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+spec:
+  selector:
+  ports:
+```
+
+* Third part: status - automatically generated and added by K8s
+* K8s compares the desired and actual state - used for self-healing
+* K8s updates state continuously from etcd
+
+#### Format of the configuration file
+* YAML
+* Strict identation - use validator
+* Store the config file with your code or own repository
+
+#### Blueprint for pods (template)
+* See in the `spec` section
+```
+spec:
+  ...
+  template:
+    metadata:
+      ...
+    spec:
+      ...
+```
+* Has own `metadata` and `spec` section
+* Applies to a pod
+* Blueprint for a pod - port, image, name, ...
+
+#### Connecting services to deployments and pods (label & selector & port)
+* `metadata` contains the labels
+* `spec` part contains selectors
+* Any key-value pair for component - `app: nginx`
+* Pods get the label through the template blueprint
+* The label is matched by the `selector`
+* `port` - where the service is available
+* `targerPort` - where the pod is listening for service. Should match the container port of the deployment
+* [demo](https://gitlab.com/nanuchi/youtube-tutorial-series/-/tree/master/kubernetes-configuration-file-explained)
+```
+kubectl apply -f nginx-deployment.yaml
+kubectl apply -f nginx-service.yaml
+kubectl get pod
+kubectl get service
+kubectl describe service nginx-service
+kubectl get pod -o wide # get IPs
+```
+* Get resulting/updated configuration of deployment (from etcd) - can be saved to yaml file
+```
+kubectl get deployment nginx-deployment -o yaml
+```
+* Lots of generated stuff that can be removed
+* Can be deleted with configuration file
+```
+kubectl delete -f nginx-deployment.yaml
+kubectl delete -f nginx-service.yaml
+```
 
 ### Demo Project
 * Install two master nodes and three worker nodes

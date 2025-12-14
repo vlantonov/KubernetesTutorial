@@ -475,17 +475,190 @@ kubectl get configmap -n my-namespace
 * Change namespace - `kubens my-namespace`
 
 ### K8s Ingress explained
-*  What is Ingress? External Service vs. Ingress
-* Ingress: way to manage external access to your services in a Kubernetes cluster. It provides HTTP and HTTPS routing to your services, acting as a reverse proxy.
-*  Example YAML Config Files for External Service and Ingress
-*  Internal Service Configuration for Ingress
-*  How to configure Ingress in your cluster?
-*  What is Ingress Controller?
-*  Environment on which your cluster is running (Cloud provider or bare metal)
-*  Demo: Configure Ingress in Minikube
-*  Ingress Default Backend
-*  Routing Use Cases
-*  Configuring TLS Certificate
+
+#### What is Ingress? External Service vs. Ingress
+* Ingress: way to manage external access to your services in a Kubernetes cluster
+* It provides HTTP and HTTPS routing to your services, acting as a reverse proxy.
+* External service is only good for test cases and fast protyping
+* With Ingress the IP and port is not opened - request reaches Ingress first
+
+#### Example YAML Config Files for External Service and Ingress
+* Used for - `kind` : Service ; `spec`, `type` : LoadBalancer
+```
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: myapp-ingress
+spec:
+  rules:
+  - host: myapp.com
+    http:
+      paths:
+      - backend:
+            service:
+              name: myapp-internal-service
+              port:
+                number: 8080
+```
+* Routing rules - forward request to the internal service
+* In browser: `http://myapp.com`
+* `paths` - the URL paths
+* HTTPS configuration later
+* Incoming request gets forwared to the internal service
+
+#### Internal Service Configuration for Ingress
+* Defined by `backend`
+* Names and ports should correspond
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: myapp-internal-service
+spec:
+  selector:
+    app: myapp
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+```
+* No `nodePort` in internal Service!
+* Instead of `LoadBalancer` default type - `ClusterIP`
+* Host
+   * Valid domain address
+   * Map domain name to Node's IP address, which is the entrypoint
+
+#### Configure Ingress in your cluster
+* The YAML created Ingress component
+* An implementation for Ingress is needed - Ingress Controller. Different third party implementations exist.
+* Evaluates and processes Ingress rules, manages all redicrections, entrypoint to cluster
+* Ingress Controller: Environment on which your cluster is running (Cloud provider or bare metal)
+* K8s Nginx Ingress controller - one of implementations
+* Cloud service provider (AWS, Google Cloud ...) - out of the box k8s solutions or own virtualized load balancer. Different ways to configure.
+* Bare metal - configure some kind of entrypoint. Either inside of the cluster or outside as a separate server.
+
+#### Configure Ingress in Minikube
+* Install Ingress Controller in minikube
+```
+minikube addons enable ingress
+kubectl get pod -n ingress-nginx
+```
+* Automatically starts Nginx Ingress controller
+* Create Ingress rule (Dashboard is needed)
+```
+minikube addons enable dashboard
+kubectl get all -n kubernetes-dashboard
+```
+* Service: `kubernetes-dashboard` - and related pod
+* Namespace should be same as the service and pod!
+* Always configure resolving IP to host name - create Ingress rule
+* Apply rule
+```
+kubectl apply -f dashboard-ingress.yaml
+kubectl get ingress -n kubernetes-dashboard
+sudo nano /etc/hosts # add IP dasboard.com
+```
+
+#### Ingress default backend
+* Check for `Default backend` in
+```
+kubectl describe ingress dashboard-ingress -n kubernetes-dashboard
+```
+* If there is no mapping defined then this service will handle the request
+* Can be used for custom error messages
+* Configuration - `port` and `name` from command output
+```
+kind: Service
+metadata:
+  name: default-http-backend
+spec:
+  selector:
+    app: default-response-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+```
+
+#### Routing Use Cases
+* Multiple paths for same host - one domain, many services
+```
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: fanout-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: myapp.com
+    http:
+      paths:
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: api-service
+            port:
+              number: 8080
+      - path: /web
+        pathType: Prefix
+        backend:
+          service:
+            name: web-service
+            port:
+              number: 80
+      - path: /admin
+        pathType: Prefix
+        backend:
+          service:
+            name: admin-service
+            port:
+              number: 3000
+```
+* Multiple sub-domains or domains: `http://myapp.com/analytics` as `http://analytics.myapp.com`
+* Configuring TLS Certificate - `tls`, app name and secret name for TLS certificates
+```
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: tls-example-ingress
+spec:
+  tls:
+  - hosts:
+    - myapp.com
+    secretName: myapp-secret-tls
+  rules:
+  - host: myapp.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: myapp-internal-service
+            port:
+              number: 8080
+
+```
+Secret configuration for the certificate
+```
+apiVersion: v1
+kind: Secret
+metadata:
+  name: myapp-secret-tls
+  namespace: default # Same namespace as the Ingress component
+type: kubernetes.io/tls
+data:
+  # Base64 encoded TLS certificate
+  # Replace with your actual base64 encoded certificate
+  tls.crt:
+  
+  # Base64 encoded private key
+  # Replace with your actual base64 encoded private key
+  tls.key:
+```
 * [Repo](https://gitlab.com/nanuchi/youtube-tutorial-series/-/blob/master/kubernetes-ingress/dashboard-ingress.yaml)
 
 ### Helm - Package Manager

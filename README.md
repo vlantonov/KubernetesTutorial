@@ -662,13 +662,93 @@ data:
 * [Repo](https://gitlab.com/nanuchi/youtube-tutorial-series/-/blob/master/kubernetes-ingress/dashboard-ingress.yaml)
 
 ### Helm - Package Manager
-*  Package Manager and Helm Charts
-*  Templating Engine
-*  Use Cases for Helm
-*  Helm Chart Structure
-*  Values injection into template files
+
+#### What is Helm
+* Package Manager for K8s
+* Packages YAML files and distributes in public and private repositories
+* [Helm Docs](https://helm.sh/docs/)
+
+#### Helm Charts
+* Bundle of YAML files
+* Own charts can be created with Helm
+* Push these to Helm repository
+* Download and use existing ones
+
+#### How to use Helm Charts
+* Search `helm search <keyword>`
+* Go to [Helm Hub](https://artifacthub.io/)
+* Company can have private registry for internal sharing
+
+#### Templating Engine
+* Deployment and Service configuration almost the same!
+* Define a common blueprint
+* Dynamic values are replaced by placeholders
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ .Values.name }}
+spec:
+  containers:
+  - name: {{ .Values.container.name }}
+    image: {{ .Values.container.image }}
+    port: {{ .Values.container.port }}
+```
+* Extrernal configuration comes from additional YAML file - like `values.yaml`
+```
+name: my-app
+container:
+  name: my-app-container
+  image: my-app-image
+  port: 9001
+```
+* `Values` is an obect created with file above or `--set` flag
+
+#### Use Cases for Helm
+* Practical for CI/CD
+* Same applications across different environments
+* Like Development, Staging and Production clusters
+
+#### Helm Chart Structure
+* Directory structure
+```
+mychart/
+  Chart.yaml
+  values.yaml
+  charts/
+  templates/
+  ...
+```
+* `mychart` - name of the chart
+* `Chart.yaml` - metainfo about the chart (name, version, dependencies...)
+* `values.yaml` - values for the template files. Default values that can be overwritten.
+* `charts/` - chart dependencies (other charts)
+* `templates/` - the actual template files
+* Deployed into K8s by `helm install <chartname>`
+* Optionally ReadMe or license files
+* Values injection - `helm install --values=my-values.yaml <chartname>`
+* Or single value - `helm install --set version=2.0.0 <chartname>`
+
+#### Release management
+* Difference between version 2 and version 3
+* Version 2 - Client (Helm CLI) and Server (Tiller)
+* Request for component creation is executed on Server
+* Server stores copy of each configuration - keep track of all chart executions
+* Changes are applied on existing environment - `helm upgrade <chartname>`
+* On problems - `helm rollback <chartname>`
+* Downsides of Tiller - too much power inside the K8s cluster. Security issue
+* Removed Tiller in Helm 3
+
+#### D
+* Too much power inside the K8s cluster
+* Security issue
+
+
+*  
+
+
 *  Release Management / Tiller (Helm Version 2!)
-* [Helm Hub](https://artifacthub.io/)
+
 * [Helm charts GitHub Project](https://github.com/helm/charts)
 
 ### Persisting Data in K8s with Volumes

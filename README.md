@@ -381,14 +381,98 @@ minikube service mongo-express-service
 * [Project](https://gitlab.com/nanuchi/youtube-tutorial-series/-/tree/master/demo-kubernetes-components)
 
 ### Organizing your components with K8s Namespaces
-*  What is a Namespace?
-*  4 Default Namespaces
-*  Create a Namespace
-*  Why to use Namespaces? 4 Use Cases
-*  Characteristics of Namespaces
-*  Create Components in Namespaces
-*  Change Active Namespace
-* [Install Kubect](https://github.com/ahmetb/kubectx#installation)
+
+####  What is a Namespace?
+* Resources are organized in namespaces
+* Virtual cluster inside a cluster
+
+#### Four Default Namespaces
+```
+kubectl get namespaces
+```
+* kube-system
+   * DO NOT create or modify in there
+   * System processes
+   * Master and kubectl processes
+* kube-public
+   * publicly accessible data
+   * a configmap, which contains cluster information
+```
+kubectl cluster-info
+```
+* kube-node-lease
+   * hearbeats of the nodes
+   * each node has associated lease object in Namespace
+   * determine the availability of the node
+* default
+   * resources you created are located there
+
+####  Create a Namespace
+* With command
+```
+kubectl create namespace my-namespace
+kubectl get namespaces
+```
+* With a configuration file (ConfigMap)
+```
+metadata:
+   name: mysql-configmap
+   namespace: my-namespace
+```
+
+####  Why to use Namespaces? Four Use Cases
+* Everything in one Namespace
+   * Problem - no overview
+   * Group resources in Namespaces - database, monitoring, elastic stack, ...
+   * Do not use for smaller projects
+   * Case: Structure your components
+* Conflicts: Many teams, same application
+   * Can overwrite same deployments!
+   * Each team works in their own namespace
+   * Case: Avoid conflicts between teams
+* Resource sharing: Staging and Development
+   * Reuse components in both environments
+   * Blue-green deployment - Two different versions of production
+   * Case: Share service between different environments
+* Access and Resource Limits on Namespaces
+   * Control access
+   * Limit: CPU, RAM, Storage per Namespace - define resource quota
+   * Each team has own, isolated enironment
+   * Case: Access and Resource Limits on Namespaces Level
+
+#### Characteristics of Namespaces
+* You can't access most resources from another Namespace - separate ConfigNap, Secret needed
+* However Service can be shared between Namespaces - namespace at the end - `.database`
+```
+data:
+  db_url:mysql-service.database
+```
+* Some components cannot be created within Namespace
+* These live globally in the cluster and cannot be isolated
+* Example: Volume, PersistentVolume, Node
+* These components can be listed with
+```
+kubectl api-resources --namespaced=false
+```
+
+#### Create Components in Namespaces
+* By default components are created in the default Namespace
+* Add to command
+```
+kubectl apply -f my-configmap.yaml --namespace=my-namespace
+```
+* Or inside the configuration file (see above) - preferred
+* Get the component - add `-n` to command
+```
+kubectl get configmap -n my-namespace
+```
+
+#### Change Active Namespace
+* Change the namespace wihout constantly adding the `-n` - use kubens command
+* [Kubens, Kubectx](https://github.com/ahmetb/kubectx#installation) - tool to switch between contexts (clusters) on kubectl faster
+* Available to install on Ubuntu
+* List of namespacec - `kubens`
+* Change namespace - `kubens my-namespace`
 
 ### K8s Ingress explained
 *  What is Ingress? External Service vs. Ingress

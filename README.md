@@ -738,17 +738,6 @@ mychart/
 * On problems - `helm rollback <chartname>`
 * Downsides of Tiller - too much power inside the K8s cluster. Security issue
 * Removed Tiller in Helm 3
-
-#### D
-* Too much power inside the K8s cluster
-* Security issue
-
-
-*  
-
-
-*  Release Management / Tiller (Helm Version 2!)
-
 * [Helm charts GitHub Project](https://github.com/helm/charts)
 
 ### Persisting Data in K8s with Volumes

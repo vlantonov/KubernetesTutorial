@@ -741,14 +741,239 @@ mychart/
 * [Helm charts GitHub Project](https://github.com/helm/charts)
 
 ### Persisting Data in K8s with Volumes
-*  The need for persistent storage & storage requirements
-*  Persistent Volume (PV)
-*  Local vs Remote Volume Types
-*  Who creates the PV and when?
-*  Persistent Volume Claim (PVC)
-*  Levels of volume abstractions
-*  ConfigMap and Secret as volume types
-*  Storage Class (SC)
+
+####  The need for persistent storage & storage requirements
+* No data persistence out of the box - it has to be configured
+* Storage that does not depend on the pod lifecycle
+* Storage must be available on all nodes
+* Storage needs to survive even if cluster crashes
+
+####  Persistent Volume (PV)
+* Read/write from preconfigured directory
+* A cluster resource
+* Created via YAML file
+```
+apiVersion: apps/v1
+kind: PersistenVolume
+metadata:
+  name: pv-name
+spec:
+  capacity:
+    storage: 5Gi
+  volumeMode: Filesystem
+  accessMode:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Recycle
+  storageClassName: slow
+  mountOptions:
+    - hard
+    - nfsvers=4.0
+  nfs:
+    path: /dir/path/on/nfs/server
+    server: nfs-server-ip-address
+```
+* `spec` - e.g. how much storage, additional params like access, storage backend
+* Needs physical storage - HDD from nodes, external NFS servers, cloud storage
+* Where does storage come from and who make is available to the cluster?
+* What type of storage do you need?
+* Need to create and manage by yourself - external plugin to your cluster
+* Coogle Cloud example
+```
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: test-volume
+  labels:
+    failure-domain.beta.kubernetes.io/zone: us-central1-a__us-central1-b
+spec:
+  capacity:
+    storage: 400Gi
+  accessModes:
+  - ReadWriteOnce
+  gcePersistentDisk:
+    pdName: my-data-disk
+    fsType: ext4
+```
+* Attributes are dependent to the storage type
+* Local storage example
+```
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: example-pv
+spec:
+  capacity:
+    storage: 100Gi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Delete
+  storageClassName: local-storage
+  local:
+    path: /mnt/disks/ssd1
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - example-node
+```
+* Additional `nodeAffinity` attribute
+* Complete list of storage backends, supported by K8s: [Types of volumes](https://kubernetes.io/docs/concepts/storage/volumes/#volume-types)
+* PV are NOT namespaced - accessible to the whole cluster
+
+####  Local vs Remote Volume Types
+* Each type has it's own use case!
+* Local volume types violate: "Storage must be available on all nodes" and "Storage needs to survive even if cluster crashes"
+* Local volume types - tied to one specific node and do not survive cluster crashes
+* For DB persistence use remote storage!
+
+#### Who creates the PV and when?
+* PV are resources that need to be there before the pod that depends on it is created
+* K8s Admin sets up and maintains the cluster - provisions storage resource, creates PV components from storage backends
+* K8s User deploys applications in cluster -explicitly configure application YAML file to use PV
+
+#### Persistent Volume Claim (PVC)
+* Used by application to claim the PV
+* Configuration
+```
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: pvc-name
+spec:
+  storageClassName: manual
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+```
+* PVC claims a volume with certain storage size/capacity
+* It is used the following way in pods:
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mypod
+spec:
+  containers:
+  - name: myfrontend
+    image: nginx
+    volumeMounts:
+    - mountPath: "/var/www/html"
+      name: mypd
+  volumes:
+    - name: mypd
+      persistentVolumeClaim:
+        claimName: pvc-name
+```
+* `voulmes` attribute references the PVC
+* Pod and all the containers inside the pod have access to that PV storage
+
+####  Levels of volume abstractions
+* Pod requests the volume through the PV claim
+* Claim tries to find a volume in the cluster
+* Volume has the actual storage backend
+* Claims must be in the same namespace as the pod using the claim!
+* Volume is mounted into the Pod
+* Volume is mounted into the Container inside the Pod
+
+#### ConfigMap and Secret as volume types
+* Both are local volumes
+* Not created via PV and PVC
+* Managed by K8s
+* Case: Configuration/certificate file for your pod
+   * Create ConfigMap and/or Secret component
+   * Mount that into your pod/container
+
+#### Different volume types in a Pod
+* Example
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: elastic
+spec:
+  selector:
+    matchLabels:
+      app: elastic
+  template:
+    metadata:
+      labels:
+        app: elastic
+    spec:
+      containers:
+      - image: elastic:latest
+        name: elastic-container
+        ports:
+        - containerPort: 9200
+        volumeMounts:
+        - name: es-persistent-storage
+          mountPath: /var/lib/data
+        - name: es-secret-dir
+          mountPath: /var/lib/secret
+        - name: es-config-dir
+          mountPath: /var/lib/config
+      volumes:
+      - name: es-persistent-storage
+        persistentVolumeClaim:
+          claimName: es-pv-claim
+      - name: es-secret-dir
+        secret:
+          secretName: es-secret 
+      - name: es-config-dir
+        configMap:
+          name: es-config-map
+```
+* Different `volumeMounts` - listed on `volumes`
+* Each is mounted to a certain path inside the container
+
+#### Storage Class (SC)
+* Admins configure storage
+* Create Persisten Volumes
+* K8s User claim PV using PVC
+* Storage Class - makes process of storage configuration more efficient
+* SC provisions PV dynamically when PVC claims it
+* Created using YAML configuration
+```
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: storage-class-name
+provisioner: kubernetes.io/aws-ebs
+parameters:
+  type: io1
+  iopsPerGB: "10"
+  fsType: ext4
+```
+* StorageBackend is defined in the SC component via `provisioner`
+* Each storage backend has own provisioner
+* Internal provisioner - "kubernets.io"
+* External provisioner - explicitly find and use
+* Configure parameters for storage we wan to request for PV
+* Abstracts underlying storage provider and parameters for that storage
+* Storage Class usage - requested by `PersistentVolumeClaim`
+```
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+     name: mypvc
+spec:
+     accessModes:
+     - ReadWriteOnce
+     resources:
+       requests:
+         storage: 100Gi
+     storageClassName: storage-class-name
+```
+* Additional attribute - `storageClassName` that references storage class name
+* Pod claims storage via PVC
+* PVC requests storage from SC
+* SC creates PV that meets the needs of the claim
 * [kubernetes-volumes](https://gitlab.com/nanuchi/youtube-tutorial-series/-/tree/master/kubernetes-volumes)
 
 ### Deploying Stateful Apps with StatefulSet

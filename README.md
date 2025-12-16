@@ -977,13 +977,63 @@ spec:
 * [kubernetes-volumes](https://gitlab.com/nanuchi/youtube-tutorial-series/-/tree/master/kubernetes-volumes)
 
 ### Deploying Stateful Apps with StatefulSet
-*  What is StatefulSet? Difference of stateless and stateful applications
-*  Deployment of stateful and stateless apps
-*  Deployment vs StatefulSet
-*  Pod Identity
-*  Scaling database applications: Master and Worker Pods
-*  Pod state, Pod Identifier
-*  2 Pod endpoints
+
+#### What is StatefulSet?
+* Component used specifically for stateful applications
+* Stateful applications examples: Databases, applications that stores data
+* Stateless applications: Do not keep record of state, each request is completely new
+
+####  Deployment of stateful and stateless apps
+* Stateless applications are deployed using Deployment component
+* Stateful applications are deployed using StatefulSet component
+* Both makes possible to replicate pods
+* Both manage Pods based on container specification
+* Storage configured the same way
+
+#### Deployment vs StatefulSet
+* Replicating stateful applications is more difficult - other requirements
+* Stateless applications
+   * Identical and interchangeable
+   * Created in random order with random hashes
+   * One Service that load balances to any Pod
+* Stateful applications
+   * Can't be created/deleted at same time
+   * Can't be randomly addressed
+   * Replica Pods are not identical - each has own Pod identity
+
+#### Pod Identity
+* Sticky identity for each pod
+* Created from same specification, but not interchangeable!
+* Persistent identifier across any re-scheduling
+
+####  Scaling database applications: Master and Worker Pods
+* Mechanism that decides only one pod is allowed to write or change the data
+* Master - the pod that is allowed to update the data
+* Other pod are called Workers (or Slaves)
+* These pods do not use the same physical storage!
+* Data is continuosly synchronized - the Worker must know about each change!
+* Temporary storage possible - but data will be lost when all Pods die!
+* Use data persistence for stateful applications!
+
+####  Pod state
+* Configure persistent volume for stateful set
+* Remote storage to be available for the other nodes
+
+#### Pod Identifier
+* Every pod has its own identifier
+* Pods get fixed ordered names
+* The first is the Master, rest are the Workers
+* Next Pod is created only if previous is up and running!
+* Deletion happens in reverse order
+* Mechanisms protects data and state
+
+#### Two Pod endpoints
+* Each Pod has own DNS endpoint from Service
+* Loadbalancer service - same as Deployment
+* Individual service name - DNS names - `${pod_name}.${governing_service_domain}`
+* This results in predictable pod name and fixed individual DNS name
+* When Pod restarts, the IP address changes, name and endpoint stays same
+* Sticky identity - pod retains state and role when dies and recreated
 
 ### K8s Services
 *   What is a Service in K8s and when we need it?

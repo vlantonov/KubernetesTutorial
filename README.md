@@ -982,8 +982,9 @@ spec:
 * Component used specifically for stateful applications
 * Stateful applications examples: Databases, applications that stores data
 * Stateless applications: Do not keep record of state, each request is completely new
+* Note: K8s and Docker are more suitable for stateless applications
 
-####  Deployment of stateful and stateless apps
+#### Deployment of stateful and stateless apps
 * Stateless applications are deployed using Deployment component
 * Stateful applications are deployed using StatefulSet component
 * Both makes possible to replicate pods
@@ -1006,7 +1007,7 @@ spec:
 * Created from same specification, but not interchangeable!
 * Persistent identifier across any re-scheduling
 
-####  Scaling database applications: Master and Worker Pods
+#### Scaling database applications: Master and Worker Pods
 * Mechanism that decides only one pod is allowed to write or change the data
 * Master - the pod that is allowed to update the data
 * Other pod are called Workers (or Slaves)
@@ -1015,7 +1016,7 @@ spec:
 * Temporary storage possible - but data will be lost when all Pods die!
 * Use data persistence for stateful applications!
 
-####  Pod state
+#### Pod state
 * Configure persistent volume for stateful set
 * Remote storage to be available for the other nodes
 
@@ -1036,13 +1037,63 @@ spec:
 * Sticky identity - pod retains state and role when dies and recreated
 
 ### K8s Services
-*   What is a Service in K8s and when we need it?
-*  ClusterIP Services
-*  Service Communication
-*  Multi-Port Services
-*  Headless Services
-*  NodePort Services
-*  LoadBalancer Services
+
+####  What is a Service in K8s and when we need it?
+* Each Pod has its onw IP address
+* Pods are ephemeral - destroyed frequently, new IP address on recreation
+* Service - solution for stable IP address; load balancing provided; loose coupling; within and outside the cluster
+
+####  ClusterIP Services
+* Default type of Service
+* Example: Microservice app deployed + sidecar container (collects logs)
+* IP address from Node's range - check `kubectl get pod -o wide`
+* Replicas have differend IP address
+* ClusterIP service forwards the requests from Ingress to Pods
+* Service is accessible at certain port and address
+* Service selects Pod identified by `selector` - `labels`, `app`
+* Service selects port using `targetPort`
+
+#### Service Endpoints
+* K8s creates Endpoint object - same name as Service
+* Keeps track of which Pods are the members/endpoints of the Service
+
+#### Service Communication
+* Service port is arbitrary
+* `targePort` must match the port the container is listening at!
+
+#### Multi-Port Services
+* Second container running for monitoring metrics
+* Two ports open on service
+* These ports must be named (via optional attribute)
+
+#### Headless Services
+* Client wants to communicate with 1 specific port directly
+* Pods want to talk directly with specific Pod
+* So not randomly selected
+* Use case: Stateful applications (pod replicas are not identical)
+* Only master Pod allowed to write - so connect to it when write is needed
+* Or connect to the most recent worker node to sync the data
+* Client needs to figure out IP addresses of each Pod
+* API call to K8s API Server - makes app too tied to k8s API; inefficient
+* DNS Lookup - better; single IP address is returned (Cluster API)
+* Set ClusterIP to "None" - return Pod IP address instead
+
+#### Service type attributes
+* Type: ClusterIP, NodePort, LoadBalancer
+* ClusterIP - default, type not needed, internal service
+
+#### NodePort Services
+* Service accessible on static port by each worker node in the cluster
+* External traffic has access to fixed port on each Worker Node
+* Predefined value between 30000 - 32767
+* NodPort Services - not secure! Do not use for production external connection!
+
+#### LoadBalancer Services
+* Service accessible externally through cloud providers LoadBalancer
+* NodePort and CluserIP Service are created automatically!
+* Extension of NodePort Service
+* NodePort Service is extension of ClusterIP Service
+* Configure Ingress or LoadBalancer for production environments
 
 ## Reference
 * [Kubernetes Tutorial for Beginners](https://www.youtube.com/watch?v=X48VuDVv0do)

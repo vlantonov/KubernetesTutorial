@@ -1045,10 +1045,67 @@ spec:
 
 ####  ClusterIP Services
 * Default type of Service
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: microservice-one-service
+spec:
+  selector:
+      app: microservice-one
+  ports:
+    - protocol: TCP
+      port: 3200
+      targetPort: 3000
+```
 * Example: Microservice app deployed + sidecar container (collects logs)
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: microservice-one
+  ...
+spec:
+  replicas: 2
+  ...
+  template:
+    metadata:
+      labels:
+        app: microservice-one
+    spec:
+      containers:
+        - name: ms-one
+          image: my-private-repo/ms-one:latest
+          ports:
+            - containerPort: 3000
+        - name: log-collector
+          image: my-private-repo/log-collector:latest
+          ports:
+            - containerPort: 9000
+```
 * IP address from Node's range - check `kubectl get pod -o wide`
 * Replicas have differend IP address
 * ClusterIP service forwards the requests from Ingress to Pods
+```
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ms-one-ingress
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  rules:
+    - host: microservice-one.com
+      http:
+        paths:
+        - path: /api
+          pathType: Prefix
+          backend:
+            service:
+              name: microservice-one-service
+              port:
+                number: 3200
+```
 * Service is accessible at certain port and address
 * Service selects Pod identified by `selector` - `labels`, `app`
 * Service selects port using `targetPort`
@@ -1060,11 +1117,31 @@ spec:
 #### Service Communication
 * Service port is arbitrary
 * `targePort` must match the port the container is listening at!
+* See mongodb example
 
 #### Multi-Port Services
 * Second container running for monitoring metrics
 * Two ports open on service
 * These ports must be named (via optional attribute)
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb-service
+  ...
+spec:
+  selector:
+    app: mongodb
+  ports:
+    - name: mongodb
+      protocol: TCP
+      port: 27017
+      targetPort: 27017
+    - name: mongodb-exporter
+      protocol: TCP
+      port: 9216
+      targetPort: 9216
+```
 
 #### Headless Services
 * Client wants to communicate with 1 specific port directly
@@ -1077,19 +1154,79 @@ spec:
 * API call to K8s API Server - makes app too tied to k8s API; inefficient
 * DNS Lookup - better; single IP address is returned (Cluster API)
 * Set ClusterIP to "None" - return Pod IP address instead
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb-service-headless
+spec:
+  clusterIP: None
+  selector:
+      app: mongodb
+  ports:
+    - protocol: TCP
+      port: 27017
+      targetPort: 27017
+```
 
 #### Service type attributes
 * Type: ClusterIP, NodePort, LoadBalancer
 * ClusterIP - default, type not needed, internal service
+* The omitted part
+```
+spec:
+  type: ClusterIP
+```
+* NodePort example
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-service
+spec:
+  type: NodePort
+```
+* LoadBalancer - `type: LoadBalancer`
+
 
 #### NodePort Services
 * Service accessible on static port by each worker node in the cluster
-* External traffic has access to fixed port on each Worker Node
+* External traffic has access to fixed port on each Worker Node - `nodePort`
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: ms-service-nodeport
+spec:
+  type: NodePort
+  selector:
+      app: microservice-one
+  ports:
+    - protocol: TCP
+      port: 3200
+      targetPort: 3000
+      nodePort: 30008
+```
 * Predefined value between 30000 - 32767
 * NodPort Services - not secure! Do not use for production external connection!
 
 #### LoadBalancer Services
 * Service accessible externally through cloud providers LoadBalancer
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: ms-service-loadbalancer
+spec:
+  type: LoadBalancer
+  selector:
+      app: microservice-one
+  ports:
+    - protocol: TCP
+      port: 3200
+      targetPort: 3000
+      nodePort: 30010
+```
 * NodePort and CluserIP Service are created automatically!
 * Extension of NodePort Service
 * NodePort Service is extension of ClusterIP Service

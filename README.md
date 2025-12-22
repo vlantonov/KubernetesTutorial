@@ -2,7 +2,7 @@
 
 ## Contents
 
-### What is Kubernetes
+### 1. What is Kubernetes
 
 ####  What problems does Kubernetes solve?
 * Monolith to microservices
@@ -13,7 +13,7 @@
 * Scalability or high performance
 * Disaster recovery - backup and restore
 
-### Main K8s Components
+### 2. Main K8s Components
 
 ####  Node & Pod
 * Pod: smallest unit of k8s
@@ -65,7 +65,7 @@
 * Deploying StatefulSet is not easy!
 * DB are ofter hosted outside k8s cluster
 
-### K8s Architecture
+### 3. K8s Architecture
 
 ####  Worker Nodes
 * Each node has multiple posd on it
@@ -102,7 +102,7 @@
 * Cluster brain; informs scheduler
 * Application data NOT stored
 
-### Minikube and kubectl - Local Setup
+### 4. Minikube and kubectl - Local Setup
 
 #### What is minikube?
 * [minikube](https://minikube.sigs.k8s.io/docs/)
@@ -137,7 +137,7 @@ kubectl get nodes
 minikube status
 ```
 
-### Main Kubectl Commands - K8s CLI
+### 5. Main Kubectl Commands - K8s CLI
 
 #### Get status of different components
 * `kubectl get nodes`
@@ -187,7 +187,8 @@ minikube status
 * Example `kubectl apply -f nginx-deployment.yaml`
 * Creates and configures deployment
 
-### K8s YAML Configuration File
+### 6. K8s YAML Configuration File
+
 ####  3 parts of a Kubernetes config file (metadata, specification, status)
 * First part: metadata
 * Second part: specification - specific attributes to the kind!
@@ -267,7 +268,7 @@ kubectl delete -f nginx-deployment.yaml
 kubectl delete -f nginx-service.yaml
 ```
 
-### Demo Project
+### 7. Demo Project
 
 #### Setup
 * Two Deployments / Pods
@@ -380,7 +381,7 @@ minikube service mongo-express-service
 * Default - username `admin`, password `pass`
 * [Project](https://gitlab.com/nanuchi/youtube-tutorial-series/-/tree/master/demo-kubernetes-components)
 
-### Organizing your components with K8s Namespaces
+### 8. Organizing your components with K8s Namespaces
 
 ####  What is a Namespace?
 * Resources are organized in namespaces
@@ -474,7 +475,7 @@ kubectl get configmap -n my-namespace
 * List of namespacec - `kubens`
 * Change namespace - `kubens my-namespace`
 
-### K8s Ingress explained
+### 9. K8s Ingress explained
 
 #### What is Ingress? External Service vs. Ingress
 * Ingress: way to manage external access to your services in a Kubernetes cluster
@@ -661,7 +662,7 @@ data:
 ```
 * [Repo](https://gitlab.com/nanuchi/youtube-tutorial-series/-/blob/master/kubernetes-ingress/dashboard-ingress.yaml)
 
-### Helm - Package Manager
+### 10. Helm - Package Manager
 
 #### What is Helm
 * Package Manager for K8s
@@ -740,7 +741,7 @@ mychart/
 * Removed Tiller in Helm 3
 * [Helm charts GitHub Project](https://github.com/helm/charts)
 
-### Persisting Data in K8s with Volumes
+### 11. Persisting Data in K8s with Volumes
 
 ####  The need for persistent storage & storage requirements
 * No data persistence out of the box - it has to be configured
@@ -748,7 +749,7 @@ mychart/
 * Storage must be available on all nodes
 * Storage needs to survive even if cluster crashes
 
-####  Persistent Volume (PV)
+#### Persistent Volume (PV)
 * Read/write from preconfigured directory
 * A cluster resource
 * Created via YAML file
@@ -824,7 +825,7 @@ spec:
 * Complete list of storage backends, supported by K8s: [Types of volumes](https://kubernetes.io/docs/concepts/storage/volumes/#volume-types)
 * PV are NOT namespaced - accessible to the whole cluster
 
-####  Local vs Remote Volume Types
+#### Local vs Remote Volume Types
 * Each type has it's own use case!
 * Local volume types violate: "Storage must be available on all nodes" and "Storage needs to survive even if cluster crashes"
 * Local volume types - tied to one specific node and do not survive cluster crashes
@@ -976,7 +977,7 @@ spec:
 * SC creates PV that meets the needs of the claim
 * [kubernetes-volumes](https://gitlab.com/nanuchi/youtube-tutorial-series/-/tree/master/kubernetes-volumes)
 
-### Deploying Stateful Apps with StatefulSet
+### 12. Deploying Stateful Apps with StatefulSet
 
 #### What is StatefulSet?
 * Component used specifically for stateful applications
@@ -1036,14 +1037,14 @@ spec:
 * When Pod restarts, the IP address changes, name and endpoint stays same
 * Sticky identity - pod retains state and role when dies and recreated
 
-### K8s Services
+### 13. K8s Services
 
-####  What is a Service in K8s and when we need it?
+#### What is a Service in K8s and when we need it?
 * Each Pod has its onw IP address
 * Pods are ephemeral - destroyed frequently, new IP address on recreation
 * Service - solution for stable IP address; load balancing provided; loose coupling; within and outside the cluster
 
-####  ClusterIP Services
+#### ClusterIP Services
 * Default type of Service
 ```
 apiVersion: v1
@@ -1232,7 +1233,7 @@ spec:
 * NodePort Service is extension of ClusterIP Service
 * Configure Ingress or LoadBalancer for production environments
 
-## Reference
+## References
 * [Kubernetes Tutorial for Beginners](https://www.youtube.com/watch?v=X48VuDVv0do)
 * [Learn Kubernetes Basics](https://kubernetes.io/docs/tutorials/kubernetes-basics/)
 * [How to Learn Kubernetes - Complete Roadmap & Resources](https://devopscube.com/learn-kubernetes-complete-roadmap)

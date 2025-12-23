@@ -137,7 +137,13 @@ kubectl get nodes
 minikube status
 ```
 
+#### Local profiles
+* `minikube profile list`
+* `minikube profile Num1`
+
 ### 5. Main Kubectl Commands - K8s CLI
+
+* `kubectl cluster-info`
 
 #### Get status of different components
 * `kubectl get nodes`
@@ -558,6 +564,12 @@ kubectl get all -n kubernetes-dashboard
 kubectl apply -f dashboard-ingress.yaml
 kubectl get ingress -n kubernetes-dashboard
 sudo nano /etc/hosts # add IP dasboard.com
+```
+* Check addons
+```
+minikube addons list
+minikube addons enable <ADDON_NAME>
+minikube addons disable <ADDON_NAME>
 ```
 
 #### Ingress default backend

@@ -141,6 +141,29 @@ minikube status
 * `minikube profile list`
 * `minikube profile Num1`
 
+#### Quick session examples
+```
+kubectl run test-pod --image=nginx
+kubectl get pods -o wide
+
+kubectl create deployment hello-web --image=nginx
+kubectl get deployments
+kubectl get pods
+kubectl get events
+kubectl expose deployment hello-web --type=LoadBalancer --port=80
+curl http://localhost:80
+kubectl get pod
+kubectl get service
+
+minikube service hello-web
+
+minikube ssh
+
+kubectl delete service hello-web
+kubectl delete deployment hello-web
+kubectl get all
+```
+
 ### 5. Main Kubectl Commands - K8s CLI
 
 * `kubectl cluster-info`

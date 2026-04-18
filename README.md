@@ -21,7 +21,7 @@
 * Interaction only with k8s layer
 * Usually one application per pod
 * Node: machine (physical or virtual) in a Kubernetes cluster that runs your applications.
-* Node" contains the tools needed to run Pods, including the container runtime (like Docker), the Kubelet (agent), and the Kube proxy (networking).
+* Node: contains the tools needed to run Pods, including the container runtime (like Docker), the Kubelet (agent), and kube-proxy (networking).
 * Each node gets own IP address
 * New IP address on recreation
 * Master node (Control Plane):  makes decisions, like where to run applications, handles scheduling, and keeps track of everything.
@@ -48,7 +48,7 @@
 * Data storage persisted
 * Attach storage to pod
 * Storage on local machine
-* Or remote, outside od the k8s cluster
+* Or remote, outside of the k8s cluster
 * k8s doesn't manage data persistence!
 
 #### Deployment & StatefulSet
@@ -68,7 +68,7 @@
 ### 3. K8s Architecture
 
 ####  Worker Nodes
-* Each node has multiple posd on it
+* Each node has multiple pods on it
 * Three processes must be installed on every node
 * Worker Nodes do the actual work
 * First process: Container runtime (can be Docker)
@@ -87,7 +87,7 @@
 
 ####  Api Server
 * Cluster gateway
-* Gatekeeper for authentification
+* Gatekeeper for authentication
 
 ####  Scheduler
 * Decides on which node to put the pod
@@ -251,7 +251,7 @@ spec:
 
 #### Format of the configuration file
 * YAML
-* Strict identation - use validator
+* Strict indentation - use validator
 * Store the config file with your code or own repository
 
 #### Blueprint for pods (template)
@@ -276,7 +276,7 @@ spec:
 * Pods get the label through the template blueprint
 * The label is matched by the `selector`
 * `port` - where the service is available
-* `targerPort` - where the pod is listening for service. Should match the container port of the deployment
+* `targetPort` - where the pod is listening for service. Should match the container port of the deployment
 * [demo](https://gitlab.com/nanuchi/youtube-tutorial-series/-/tree/master/kubernetes-configuration-file-explained)
 ```
 kubectl apply -f nginx-deployment.yaml
@@ -316,7 +316,7 @@ kubectl get all
 #### Secret
 * Must be created before the Deployment!
 * `kind` : Secret
-* `metadata` \ `name` : a random name
+* `metadata` / `name` : a random name
 * `type`: Opaque - default for arbitrary key-value pairs
 * `data`: Actual contents - key-value pairs
 * Values in pairs are not plain text, but base64 encoded. Not secure
@@ -354,7 +354,7 @@ kubectl describe pod [pod_name]
 * Deployment and service in one file because they belong together!
 * Service configuration file
    * `kind` : Service
-   * `metadata` \ `name` : a random name
+* `metadata` / `name` : a random name
    * `selector` : to connect to Pod through label
    * `ports`: see next
    * `port` : Service port
@@ -372,7 +372,7 @@ kubectl get pod -o wide
 * Centralized
 * Other components can use it
 * `kind` ConfigMap
-* `metadata` \ `name` : a random name
+* `metadata` / `name` : a random name
 * `data`: Actual contents - key-value pairs
 * Apply
 ```
@@ -384,7 +384,7 @@ kubectl apply -f mongo-configmap.yaml
 * ConfigMap must already be in the cluster when referencing it!
 * Needs ConfigMap for MongoDB server name
 * Needs MongoDB Address / Internal Service
-* Needs credentials to authentificate
+* Needs credentials to authenticate
 * Apply
 ```
 kubectl apply -f mongo-express.yaml
@@ -431,7 +431,7 @@ kubectl get namespaces
 kubectl cluster-info
 ```
 * kube-node-lease
-   * hearbeats of the nodes
+  * heartbeats of the nodes
    * each node has associated lease object in Namespace
    * determine the availability of the node
 * default
@@ -467,15 +467,15 @@ metadata:
 * Access and Resource Limits on Namespaces
    * Control access
    * Limit: CPU, RAM, Storage per Namespace - define resource quota
-   * Each team has own, isolated enironment
+  * Each team has own, isolated environment
    * Case: Access and Resource Limits on Namespaces Level
 
 #### Characteristics of Namespaces
-* You can't access most resources from another Namespace - separate ConfigNap, Secret needed
+* You can't access most resources from another Namespace - separate ConfigMap and Secret are needed
 * However Service can be shared between Namespaces - namespace at the end - `.database`
 ```
 data:
-  db_url:mysql-service.database
+  db_url: mysql-service.database
 ```
 * Some components cannot be created within Namespace
 * These live globally in the cluster and cannot be isolated
@@ -498,10 +498,10 @@ kubectl get configmap -n my-namespace
 ```
 
 #### Change Active Namespace
-* Change the namespace wihout constantly adding the `-n` - use kubens command
+* Change the namespace without constantly adding the `-n` - use kubens command
 * [Kubens, Kubectx](https://github.com/ahmetb/kubectx#installation) - tool to switch between contexts (clusters) on kubectl faster
 * Available to install on Ubuntu
-* List of namespacec - `kubens`
+* List of namespaces - `kubens`
 * Change namespace - `kubens my-namespace`
 
 ### 9. K8s Ingress explained
@@ -509,7 +509,7 @@ kubectl get configmap -n my-namespace
 #### What is Ingress? External Service vs. Ingress
 * Ingress: way to manage external access to your services in a Kubernetes cluster
 * It provides HTTP and HTTPS routing to your services, acting as a reverse proxy.
-* External service is only good for test cases and fast protyping
+* External service is only good for test cases and fast prototyping
 * With Ingress the IP and port is not opened - request reaches Ingress first
 
 #### Example YAML Config Files for External Service and Ingress
@@ -534,7 +534,7 @@ spec:
 * In browser: `http://myapp.com`
 * `paths` - the URL paths
 * HTTPS configuration later
-* Incoming request gets forwared to the internal service
+* Incoming request gets forwarded to the internal service
 
 #### Internal Service Configuration for Ingress
 * Defined by `backend`
@@ -561,7 +561,7 @@ spec:
 #### Configure Ingress in your cluster
 * The YAML created Ingress component
 * An implementation for Ingress is needed - Ingress Controller. Different third party implementations exist.
-* Evaluates and processes Ingress rules, manages all redicrections, entrypoint to cluster
+* Evaluates and processes Ingress rules, manages all redirections, entrypoint to cluster
 * Ingress Controller: Environment on which your cluster is running (Cloud provider or bare metal)
 * K8s Nginx Ingress controller - one of implementations
 * Cloud service provider (AWS, Google Cloud ...) - out of the box k8s solutions or own virtualized load balancer. Different ways to configure.
@@ -586,7 +586,7 @@ kubectl get all -n kubernetes-dashboard
 ```
 kubectl apply -f dashboard-ingress.yaml
 kubectl get ingress -n kubernetes-dashboard
-sudo nano /etc/hosts # add IP dasboard.com
+sudo nano /etc/hosts # add IP dashboard.com
 ```
 * Check addons
 ```
@@ -730,7 +730,7 @@ spec:
     image: {{ .Values.container.image }}
     port: {{ .Values.container.port }}
 ```
-* Extrernal configuration comes from additional YAML file - like `values.yaml`
+* External configuration comes from additional YAML file - like `values.yaml`
 ```
 name: my-app
 container:
@@ -738,7 +738,7 @@ container:
   image: my-app-image
   port: 9001
 ```
-* `Values` is an obect created with file above or `--set` flag
+* `Values` is an object created with the file above or the `--set` flag
 
 #### Use Cases for Helm
 * Practical for CI/CD
@@ -790,14 +790,14 @@ mychart/
 * Created via YAML file
 ```
 apiVersion: apps/v1
-kind: PersistenVolume
+kind: PersistentVolume
 metadata:
   name: pv-name
 spec:
   capacity:
     storage: 5Gi
   volumeMode: Filesystem
-  accessMode:
+  accessModes:
     - ReadWriteOnce
   persistentVolumeReclaimPolicy: Recycle
   storageClassName: slow
@@ -810,10 +810,10 @@ spec:
 ```
 * `spec` - e.g. how much storage, additional params like access, storage backend
 * Needs physical storage - HDD from nodes, external NFS servers, cloud storage
-* Where does storage come from and who make is available to the cluster?
+* Where does storage come from and who makes it available to the cluster?
 * What type of storage do you need?
 * Need to create and manage by yourself - external plugin to your cluster
-* Coogle Cloud example
+* Google Cloud example
 ```
 apiVersion: v1
 kind: PersistentVolume
@@ -869,7 +869,7 @@ spec:
 #### Who creates the PV and when?
 * PV are resources that need to be there before the pod that depends on it is created
 * K8s Admin sets up and maintains the cluster - provisions storage resource, creates PV components from storage backends
-* K8s User deploys applications in cluster -explicitly configure application YAML file to use PV
+* K8s User deploys applications in cluster - explicitly configure application YAML file to use PV
 
 #### Persistent Volume Claim (PVC)
 * Used by application to claim the PV
@@ -907,7 +907,7 @@ spec:
       persistentVolumeClaim:
         claimName: pvc-name
 ```
-* `voulmes` attribute references the PVC
+* `volumes` attribute references the PVC
 * Pod and all the containers inside the pod have access to that PV storage
 
 ####  Levels of volume abstractions
@@ -970,7 +970,7 @@ spec:
 
 #### Storage Class (SC)
 * Admins configure storage
-* Create Persisten Volumes
+* Create PersistentVolumes
 * K8s User claim PV using PVC
 * Storage Class - makes process of storage configuration more efficient
 * SC provisions PV dynamically when PVC claims it
@@ -988,9 +988,9 @@ parameters:
 ```
 * StorageBackend is defined in the SC component via `provisioner`
 * Each storage backend has own provisioner
-* Internal provisioner - "kubernets.io"
+* Internal provisioner - `kubernetes.io`
 * External provisioner - explicitly find and use
-* Configure parameters for storage we wan to request for PV
+* Configure parameters for storage we want to request for PV
 * Abstracts underlying storage provider and parameters for that storage
 * Storage Class usage - requested by `PersistentVolumeClaim`
 ```
@@ -1075,7 +1075,7 @@ spec:
 ### 13. K8s Services
 
 #### What is a Service in K8s and when we need it?
-* Each Pod has its onw IP address
+* Each Pod has its own IP address
 * Pods are ephemeral - destroyed frequently, new IP address on recreation
 * Service - solution for stable IP address; load balancing provided; loose coupling; within and outside the cluster
 
@@ -1120,7 +1120,7 @@ spec:
             - containerPort: 9000
 ```
 * IP address from Node's range - check `kubectl get pod -o wide`
-* Replicas have differend IP address
+* Replicas have different IP addresses
 * ClusterIP service forwards the requests from Ingress to Pods
 ```
 apiVersion: networking.k8s.io/v1
@@ -1152,7 +1152,7 @@ spec:
 
 #### Service Communication
 * Service port is arbitrary
-* `targePort` must match the port the container is listening at!
+* `targetPort` must match the port the container is listening at!
 * See mongodb example
 
 #### Multi-Port Services
@@ -1244,7 +1244,7 @@ spec:
       nodePort: 30008
 ```
 * Predefined value between 30000 - 32767
-* NodPort Services - not secure! Do not use for production external connection!
+    * NodePort Services - not secure! Do not use for production external connection!
 
 #### LoadBalancer Services
 * Service accessible externally through cloud providers LoadBalancer
@@ -1263,7 +1263,7 @@ spec:
       targetPort: 3000
       nodePort: 30010
 ```
-* NodePort and CluserIP Service are created automatically!
+    * NodePort and ClusterIP Service are created automatically!
 * Extension of NodePort Service
 * NodePort Service is extension of ClusterIP Service
 * Configure Ingress or LoadBalancer for production environments
